@@ -1,16 +1,16 @@
-import { StrictMode } from 'react'
+import {StrictMode, useState} from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
 import {BrowserRouter, Route, Routes} from "react-router";
 import LiquidEther from "./Components/LiquidEther.jsx";
 import Navigation from "./Components/Navigation.jsx";
+import Home from "./Pages/Home.jsx";
 
 createRoot(document.getElementById('root')).render(
       <BrowserRouter>
-          <div className="absolute top-0 left-0 w-full h-full z-0 opacity-40">
+          <div className="fixed top-0 left-0 w-full h-full z-1 opacity-30">
               <LiquidEther
-                  colors={[ '#2eff27', '#baff9f', '#b2ef9e' ]}
+                  colors={[ '#ffffff', '#cdcdcd', '#a6a6a6' ]}
                   mouseForce={50}
                   cursorSize={100}
                   isViscous={true}
@@ -29,7 +29,7 @@ createRoot(document.getElementById('root')).render(
           </div>
           <Navigation />
           <Routes>
-              <Route index element={<App />} />
+              <Route index element={<Home />} />
           </Routes> 
       </BrowserRouter>,
 )

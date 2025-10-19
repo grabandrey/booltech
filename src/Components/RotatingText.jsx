@@ -1,0 +1,311 @@
+'use client';
+
+import {
+    forwardRef,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+
+function cn(...classes) {
+    return classes.filter(Boolean).join(' ');
+}
+
+const RotatingText = forwardRef((props, ref) => {
+    const {
+        texts,
+        colors = [], // 🎨 new prop for per-word colors
+        transition = { type: 'spring', damping: 25, stiffness: 300 },
+        initial = { y: '100%', opacity: 0 },
+        animate = { y: 0, opacity: 1 },
+        exit = { y: '-100%', opacity: 0 },
+        animatePresenceMode = 'sync',
+        animatePresenceInitial = false,
+        rotationInterval = 2000,
+        staggerDuration = 0,
+        staggerFrom = 'first',
+        loop = true,
+        auto = true,
+        splitBy = 'characters',
+        onNext,
+        mainClassName,
+        splitLevelClassName,
+        elementLevelClassName,
+        animateWidth = true,
+        singleLine = true,
+        ...rest
+    } = props;
+
+    const [currentTextIndex, setCurrentTextIndex] = useState(0);
+    const innerRef = useRef(null);
+    const measRef = useRef(null);
+    const sizerRef = useRef(null);
+
+    const [measuredWidth, setMeasuredWidth] = useState(null);
+    const [lastSolidWidth, setLastSolidWidth] = useState(null);
+    const [lineHeightPx, setLineHeightPx] = useState(null);
+
+    // Measure line height
+    useEffect(() => {
+        const measureLine = () => {
+            const el = sizerRef.current;
+            if (!el) return;
+            const h = Math.ceil(el.getBoundingClientRect().height || 0);
+            if (h > 0) setLineHeightPx(h);
+        };
+        measureLine();
+        if (document && document.fonts) document.fonts.ready.then(measureLine);
+        const onResize = () => measureLine();
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, [mainClassName, texts, splitBy]);
+
+    // Measure width
+    const updateWidthNow = useCallback(() => {
+        const el = measRef.current;
+        if (!el) return;
+        const w = Math.ceil(el.scrollWidth);
+        if (w > 0) {
+            setMeasuredWidth(w);
+            setLastSolidWidth(w);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!animateWidth) return;
+        updateWidthNow();
+        if (document && document.fonts) document.fonts.ready.then(updateWidthNow);
+        const ro = new ResizeObserver(() => updateWidthNow());
+        const el = measRef.current;
+        if (el) ro.observe(el);
+        return () => ro.disconnect();
+    }, [animateWidth, currentTextIndex, texts, splitBy, updateWidthNow]);
+
+    // Split text into animatable parts
+    const splitIntoCharacters = text => {
+        if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+            return Array.from(segmenter.segment(text), seg => seg.segment);
+        }
+        return Array.from(text);
+    };
+
+    const elements = useMemo(() => {
+        const currentText = texts[currentTextIndex];
+        if (splitBy === 'characters') {
+            const words = currentText.split(' ');
+            return words.map((word, i) => ({
+                characters: splitIntoCharacters(word),
+                needsSpace: i !== words.length - 1,
+            }));
+        }
+        if (splitBy === 'words') {
+            return currentText.split(' ').map((word, i, arr) => ({
+                characters: [word],
+                needsSpace: i !== arr.length - 1,
+            }));
+        }
+        if (splitBy === 'lines') {
+            return currentText.split('\n').map((line, i, arr) => ({
+                characters: [line],
+                needsSpace: i !== arr.length - 1,
+            }));
+        }
+        return currentText.split(splitBy).map((part, i, arr) => ({
+            characters: [part],
+            needsSpace: i !== arr.length - 1,
+        }));
+    }, [texts, currentTextIndex, splitBy]);
+
+    const totalChars = useMemo(
+        () => elements.reduce((sum, word) => sum + word.characters.length, 0),
+        [elements]
+    );
+
+    const getStaggerDelay = useCallback(
+        (index, total) => {
+            if (staggerFrom === 'first') return index * staggerDuration;
+            if (staggerFrom === 'last') return (total - 1 - index) * staggerDuration;
+            if (staggerFrom === 'center') {
+                const center = Math.floor(total / 2);
+                return Math.abs(center - index) * staggerDuration;
+            }
+            if (staggerFrom === 'random') {
+                const randomIndex = Math.floor(Math.random() * total);
+                return Math.abs(randomIndex - index) * staggerDuration;
+            }
+            return Math.abs(staggerFrom - index) * staggerDuration;
+        },
+        [staggerFrom, staggerDuration]
+    );
+
+    // Controls
+    const handleIndexChange = useCallback(
+        newIndex => {
+            setCurrentTextIndex(newIndex);
+            onNext?.(newIndex);
+        },
+        [onNext]
+    );
+
+    const next = useCallback(() => {
+        const nextIndex =
+            currentTextIndex === texts.length - 1
+                ? loop
+                    ? 0
+                    : currentTextIndex
+                : currentTextIndex + 1;
+        if (nextIndex !== currentTextIndex) handleIndexChange(nextIndex);
+    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+
+    const previous = useCallback(() => {
+        const prevIndex =
+            currentTextIndex === 0
+                ? loop
+                    ? texts.length - 1
+                    : currentTextIndex
+                : currentTextIndex - 1;
+        if (prevIndex !== currentTextIndex) handleIndexChange(prevIndex);
+    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+
+    const jumpTo = useCallback(
+        index => {
+            const validIndex = Math.max(0, Math.min(index, texts.length - 1));
+            if (validIndex !== currentTextIndex) handleIndexChange(validIndex);
+        },
+        [texts.length, currentTextIndex, handleIndexChange]
+    );
+
+    const reset = useCallback(() => {
+        if (currentTextIndex !== 0) handleIndexChange(0);
+    }, [currentTextIndex, handleIndexChange]);
+
+    useImperativeHandle(ref, () => ({ next, previous, jumpTo, reset }), [
+        next,
+        previous,
+        jumpTo,
+        reset,
+    ]);
+
+    useEffect(() => {
+        if (!auto) return;
+        const id = setInterval(next, rotationInterval);
+        return () => clearInterval(id);
+    }, [next, rotationInterval, auto]);
+
+    const animatedWidth = measuredWidth ?? lastSolidWidth ?? 'auto';
+    const fixedHeight = lineHeightPx ?? undefined;
+
+    // Determine color for current word (loop through colors)
+    const currentColor =
+        colors.length > 0
+            ? colors[currentTextIndex % colors.length]
+            : undefined;
+
+    return (
+        <>
+            {/* Hidden line height sizer */}
+            <span
+                ref={sizerRef}
+                aria-hidden="true"
+                className={cn('invisible absolute -z-10 pointer-events-none select-none', mainClassName)}
+                style={{ position: 'absolute' }}
+            >
+        Mg
+      </span>
+
+            {/* Hidden measurer for width */}
+            <span
+                ref={measRef}
+                aria-hidden="true"
+                className={cn(
+                    'absolute -z-10 invisible pointer-events-none select-none',
+                    singleLine ? 'whitespace-nowrap' : 'whitespace-pre-wrap',
+                    mainClassName
+                )}
+                style={{ position: 'absolute' }}
+            >
+        {texts[currentTextIndex]}
+      </span>
+
+            <motion.span
+                className={cn(
+                    'inline-block relative align-baseline',
+                    singleLine ? 'leading-none' : '',
+                    mainClassName
+                )}
+                {...rest}
+                style={{
+                    ...(animateWidth ? { width: animatedWidth } : {}),
+                    ...(fixedHeight ? { height: fixedHeight, lineHeight: `${fixedHeight}px` } : {}),
+                }}
+                animate={animateWidth ? { width: animatedWidth } : undefined}
+                initial={false}
+                transition={transition}
+                layout
+            >
+                <span className="sr-only">{texts[currentTextIndex]}</span>
+
+                <div
+                    className={cn(
+                        'overflow-hidden relative',
+                        singleLine ? 'whitespace-nowrap' : 'whitespace-pre-wrap'
+                    )}
+                    style={{ height: fixedHeight ?? '1em' }}
+                    aria-hidden="true"
+                >
+                    <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
+                        <motion.span
+                            key={currentTextIndex}
+                            ref={innerRef}
+                            className="absolute left-0 top-0 inline-flex"
+                            style={{
+                                color: currentColor, // 🎨 Apply color here
+                            }}
+                            layout={false}
+                        >
+                            {elements.map((wordObj, wordIndex, array) => {
+                                const prevChars = array
+                                    .slice(0, wordIndex)
+                                    .reduce((sum, word) => sum + word.characters.length, 0);
+
+                                return (
+                                    <span
+                                        key={wordIndex}
+                                        className={cn('inline-flex', splitLevelClassName)}
+                                        style={{ overflow: 'hidden' }}
+                                    >
+                    {wordObj.characters.map((char, charIndex) => (
+                        <motion.span
+                            key={charIndex}
+                            initial={initial}
+                            animate={animate}
+                            exit={exit}
+                            transition={{
+                                ...transition,
+                                delay: getStaggerDelay(prevChars + charIndex, totalChars),
+                            }}
+                            className={cn('inline-block will-change-transform', elementLevelClassName)}
+                            style={{ verticalAlign: 'baseline' }}
+                        >
+                            {char}
+                        </motion.span>
+                    ))}
+                                        {wordObj.needsSpace && <span className="whitespace-pre"> </span>}
+                  </span>
+                                );
+                            })}
+                        </motion.span>
+                    </AnimatePresence>
+                </div>
+            </motion.span>
+        </>
+    );
+});
+
+RotatingText.displayName = 'RotatingText';
+export default RotatingText;
