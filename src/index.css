@@ -11,9 +11,21 @@
   src: url("./assets/fonts/ArchivoBlack.ttf") format('truetype');
 }
 
+@font-face {
+  font-family: Gerova;
+  src: url("./assets/fonts/Gerova.otf") format('opentype');
+}
+
+@font-face {
+  font-family: Tech;
+  src: url("./assets/fonts/Tech.ttf") format('truetype');
+}
+
 @theme {
   --font-clash-sourcecode: "SourceCode";
   --font-clash-archivoblack: "ArchivoBlack";
+  --font-clash-gerova: "Gerova";
+  --font-clash-tech: "Tech";
 }
 
 :root {

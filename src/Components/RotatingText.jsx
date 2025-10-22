@@ -15,10 +15,19 @@ function cn(...classes) {
     return classes.filter(Boolean).join(' ');
 }
 
+/**
+ * RotatingText
+ *
+ * Now supports two shapes for `texts`:
+ * 1) string[] — original behavior (split into characters/words/lines)
+ * 2) ReactNode[][] — each item is an array of nodes (e.g., <div>Word</div>) that
+ *    will be animated as words without auto-inserted spaces.
+ */
 const RotatingText = forwardRef((props, ref) => {
     const {
         texts,
-        colors = [], // 🎨 new prop for per-word colors
+        colors = [], // color applied to the whole current line
+        fonts = [], // Tailwind/next-font classes per word
         transition = { type: 'spring', damping: 25, stiffness: 300 },
         initial = { y: '100%', opacity: 0 },
         animate = { y: 0, opacity: 1 },
@@ -48,6 +57,7 @@ const RotatingText = forwardRef((props, ref) => {
     const [measuredWidth, setMeasuredWidth] = useState(null);
     const [lastSolidWidth, setLastSolidWidth] = useState(null);
     const [lineHeightPx, setLineHeightPx] = useState(null);
+    const [srText, setSrText] = useState('');
 
     // Measure line height
     useEffect(() => {
@@ -58,68 +68,63 @@ const RotatingText = forwardRef((props, ref) => {
             if (h > 0) setLineHeightPx(h);
         };
         measureLine();
-        if (document && document.fonts) document.fonts.ready.then(measureLine);
+        if (typeof document !== 'undefined' && document.fonts) {
+            document.fonts.ready.then(measureLine);
+        }
         const onResize = () => measureLine();
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, [mainClassName, texts, splitBy]);
 
-    // Measure width
-    const updateWidthNow = useCallback(() => {
-        const el = measRef.current;
-        if (!el) return;
-        const w = Math.ceil(el.scrollWidth);
-        if (w > 0) {
-            setMeasuredWidth(w);
-            setLastSolidWidth(w);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!animateWidth) return;
-        updateWidthNow();
-        if (document && document.fonts) document.fonts.ready.then(updateWidthNow);
-        const ro = new ResizeObserver(() => updateWidthNow());
-        const el = measRef.current;
-        if (el) ro.observe(el);
-        return () => ro.disconnect();
-    }, [animateWidth, currentTextIndex, texts, splitBy, updateWidthNow]);
-
-    // Split text into animatable parts
-    const splitIntoCharacters = text => {
+    // Split text into animatable parts (string path)
+    const splitIntoCharacters = (text) => {
         if (typeof Intl !== 'undefined' && Intl.Segmenter) {
             const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-            return Array.from(segmenter.segment(text), seg => seg.segment);
+            return Array.from(segmenter.segment(text), (seg) => seg.segment);
         }
         return Array.from(text);
     };
 
+    const currentText = texts?.[currentTextIndex] ?? '';
+    const currentIsNodeArray = Array.isArray(currentText);
+
+    /**
+     * elements: normalized shape for renderer & measurer
+     * - for strings → array of words with character arrays
+     * - for node-arrays → one character per \"word\" which is the node itself
+     */
     const elements = useMemo(() => {
-        const currentText = texts[currentTextIndex];
-        if (splitBy === 'characters') {
-            const words = currentText.split(' ');
-            return words.map((word, i) => ({
-                characters: splitIntoCharacters(word),
-                needsSpace: i !== words.length - 1,
-            }));
-        }
-        if (splitBy === 'words') {
-            return currentText.split(' ').map((word, i, arr) => ({
-                characters: [word],
+        if (!currentIsNodeArray) {
+            const str = String(currentText ?? '');
+            if (splitBy === 'characters') {
+                const words = str.split(' ');
+                return words.map((word, i) => ({
+                    characters: splitIntoCharacters(word),
+                    needsSpace: i !== words.length - 1,
+                }));
+            }
+            if (splitBy === 'words') {
+                return str.split(' ').map((word, i, arr) => ({
+                    characters: [word],
+                    needsSpace: i !== arr.length - 1,
+                }));
+            }
+            if (splitBy === 'lines') {
+                return str.split('\n').map((line, i, arr) => ({
+                    characters: [line],
+                    needsSpace: i !== arr.length - 1,
+                }));
+            }
+            return str.split(splitBy).map((part, i, arr) => ({
+                characters: [part],
                 needsSpace: i !== arr.length - 1,
             }));
         }
-        if (splitBy === 'lines') {
-            return currentText.split('\n').map((line, i, arr) => ({
-                characters: [line],
-                needsSpace: i !== arr.length - 1,
-            }));
-        }
-        return currentText.split(splitBy).map((part, i, arr) => ({
-            characters: [part],
-            needsSpace: i !== arr.length - 1,
-        }));
-    }, [texts, currentTextIndex, splitBy]);
+
+        // Node-array path: treat each provided node as a single animatable unit
+        const nodes = currentText;
+        return nodes.map((node) => ({ characters: [node], needsSpace: false }));
+    }, [currentText, currentIsNodeArray, splitBy]);
 
     const totalChars = useMemo(
         () => elements.reduce((sum, word) => sum + word.characters.length, 0),
@@ -145,7 +150,7 @@ const RotatingText = forwardRef((props, ref) => {
 
     // Controls
     const handleIndexChange = useCallback(
-        newIndex => {
+        (newIndex) => {
             setCurrentTextIndex(newIndex);
             onNext?.(newIndex);
         },
@@ -154,42 +159,28 @@ const RotatingText = forwardRef((props, ref) => {
 
     const next = useCallback(() => {
         const nextIndex =
-            currentTextIndex === texts.length - 1
-                ? loop
-                    ? 0
-                    : currentTextIndex
-                : currentTextIndex + 1;
+            currentTextIndex === texts.length - 1 ? (loop ? 0 : currentTextIndex) : currentTextIndex + 1;
         if (nextIndex !== currentTextIndex) handleIndexChange(nextIndex);
-    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+    }, [currentTextIndex, texts?.length, loop, handleIndexChange]);
 
     const previous = useCallback(() => {
-        const prevIndex =
-            currentTextIndex === 0
-                ? loop
-                    ? texts.length - 1
-                    : currentTextIndex
-                : currentTextIndex - 1;
+        const prevIndex = currentTextIndex === 0 ? (loop ? texts.length - 1 : currentTextIndex) : currentTextIndex - 1;
         if (prevIndex !== currentTextIndex) handleIndexChange(prevIndex);
-    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+    }, [currentTextIndex, texts?.length, loop, handleIndexChange]);
 
     const jumpTo = useCallback(
-        index => {
+        (index) => {
             const validIndex = Math.max(0, Math.min(index, texts.length - 1));
             if (validIndex !== currentTextIndex) handleIndexChange(validIndex);
         },
-        [texts.length, currentTextIndex, handleIndexChange]
+        [texts?.length, currentTextIndex, handleIndexChange]
     );
 
     const reset = useCallback(() => {
         if (currentTextIndex !== 0) handleIndexChange(0);
     }, [currentTextIndex, handleIndexChange]);
 
-    useImperativeHandle(ref, () => ({ next, previous, jumpTo, reset }), [
-        next,
-        previous,
-        jumpTo,
-        reset,
-    ]);
+    useImperativeHandle(ref, () => ({ next, previous, jumpTo, reset }), [next, previous, jumpTo, reset]);
 
     useEffect(() => {
         if (!auto) return;
@@ -200,11 +191,33 @@ const RotatingText = forwardRef((props, ref) => {
     const animatedWidth = measuredWidth ?? lastSolidWidth ?? 'auto';
     const fixedHeight = lineHeightPx ?? undefined;
 
-    // Determine color for current word (loop through colors)
-    const currentColor =
-        colors.length > 0
-            ? colors[currentTextIndex % colors.length]
-            : undefined;
+    // Determine color for current line (loop through colors)
+    const currentColor = colors.length > 0 ? colors[currentTextIndex % colors.length] : undefined;
+
+    // Measure width & update screen-reader text
+    const updateWidthNow = useCallback(() => {
+        const el = measRef.current;
+        if (!el) return;
+        const w = Math.ceil(el.scrollWidth);
+        if (w > 0) {
+            setMeasuredWidth(w);
+            setLastSolidWidth(w);
+        }
+        // Update SR-only text from measured content (gets textContent from nodes)
+        setSrText(el.textContent || '');
+    }, []);
+
+    useEffect(() => {
+        if (!animateWidth) return;
+        updateWidthNow();
+        if (typeof document !== 'undefined' && document.fonts) {
+            document.fonts.ready.then(updateWidthNow);
+        }
+        const ro = new ResizeObserver(() => updateWidthNow());
+        const el = measRef.current;
+        if (el) ro.observe(el);
+        return () => ro.disconnect();
+    }, [animateWidth, currentTextIndex, texts, splitBy, fonts, updateWidthNow]);
 
     return (
         <>
@@ -229,15 +242,35 @@ const RotatingText = forwardRef((props, ref) => {
                 )}
                 style={{ position: 'absolute' }}
             >
-        {texts[currentTextIndex]}
+        {/* Render MEASURE CONTENT mirror */}
+                {!currentIsNodeArray &&
+                    elements.map((wordObj, wordIndex) => {
+                        const fontClass = fonts.length > 0 ? fonts[wordIndex % fonts.length] : '';
+                        return (
+                            <span key={`meas-${wordIndex}`} className={cn('inline', fontClass)}>
+                {wordObj.characters.map((ch, i) => (
+                    <span key={`meas-${wordIndex}-${i}`} className={fontClass}>
+                    {ch}
+                  </span>
+                ))}
+                                {wordObj.needsSpace ? ' ' : ''}
+              </span>
+                        );
+                    })}
+                {currentIsNodeArray &&
+                    elements.map((wordObj, wordIndex) => {
+                        const fontClass = fonts.length > 0 ? fonts[wordIndex % fonts.length] : '';
+                        return (
+                            <span key={`meas-node-${wordIndex}`} className={cn('inline-flex', fontClass)}>
+                {/* Each node is a single unit */}
+                                {wordObj.characters[0]}
+              </span>
+                        );
+                    })}
       </span>
 
             <motion.span
-                className={cn(
-                    'inline-block relative align-baseline',
-                    singleLine ? 'leading-none' : '',
-                    mainClassName
-                )}
+                className={cn('inline-block relative align-baseline', singleLine ? 'leading-none' : '', mainClassName)}
                 {...rest}
                 style={{
                     ...(animateWidth ? { width: animatedWidth } : {}),
@@ -248,13 +281,11 @@ const RotatingText = forwardRef((props, ref) => {
                 transition={transition}
                 layout
             >
-                <span className="sr-only">{texts[currentTextIndex]}</span>
+                {/* SR-only textual fallback */}
+                <span className="sr-only">{!currentIsNodeArray ? String(currentText ?? '') : srText}</span>
 
                 <div
-                    className={cn(
-                        'overflow-hidden relative',
-                        singleLine ? 'whitespace-nowrap' : 'whitespace-pre-wrap'
-                    )}
+                    className={cn('overflow-hidden relative', singleLine ? 'whitespace-nowrap' : 'whitespace-pre-wrap')}
                     style={{ height: fixedHeight ?? '1em' }}
                     aria-hidden="true"
                 >
@@ -263,9 +294,7 @@ const RotatingText = forwardRef((props, ref) => {
                             key={currentTextIndex}
                             ref={innerRef}
                             className="absolute left-0 top-0 inline-flex"
-                            style={{
-                                color: currentColor, // 🎨 Apply color here
-                            }}
+                            style={{ color: currentColor }}
                             layout={false}
                         >
                             {elements.map((wordObj, wordIndex, array) => {
@@ -273,10 +302,12 @@ const RotatingText = forwardRef((props, ref) => {
                                     .slice(0, wordIndex)
                                     .reduce((sum, word) => sum + word.characters.length, 0);
 
+                                const fontClass = fonts.length > 0 ? fonts[wordIndex % fonts.length] : '';
+
                                 return (
                                     <span
                                         key={wordIndex}
-                                        className={cn('inline-flex', splitLevelClassName)}
+                                        className={cn('inline-flex', splitLevelClassName, fontClass)}
                                         style={{ overflow: 'hidden' }}
                                     >
                     {wordObj.characters.map((char, charIndex) => (
@@ -289,13 +320,14 @@ const RotatingText = forwardRef((props, ref) => {
                                 ...transition,
                                 delay: getStaggerDelay(prevChars + charIndex, totalChars),
                             }}
-                            className={cn('inline-block will-change-transform', elementLevelClassName)}
+                            className={cn('inline-block will-change-transform', elementLevelClassName, fontClass)}
                             style={{ verticalAlign: 'baseline' }}
                         >
                             {char}
                         </motion.span>
                     ))}
-                                        {wordObj.needsSpace && <span className="whitespace-pre"> </span>}
+                                        {/* For string mode we optionally add spaces; for node mode, spacing is user-controlled */}
+                                        {!currentIsNodeArray && wordObj.needsSpace && <span className="whitespace-pre"> </span>}
                   </span>
                                 );
                             })}

@@ -1,7 +1,7 @@
 import RotatingText from "./RotatingText.jsx";
 import {useEffect, useState} from "react";
 
-function Logo({fontSize = 30}) {
+function Logo({fontSize = 55}) {
 
     const [logoAnimation1, setLogoAnimation1] = useState(60000);
     const [logoAnimation2, setLogoAnimation2] = useState(60000);
@@ -17,11 +17,11 @@ function Logo({fontSize = 30}) {
     }, []);
 
     return (
-        <div className={`pointer-events-none grid justify-items-center items-center grid-flow-col text-[20px] text-white`}>
+        <div className={`pointer-events-none grid justify-items-center items-center grid-flow-col text-white`} style={{fontSize: fontSize + "px"}}>
             <div className="font-clash-sourcecode font-semibold">b</div>
             <RotatingText
                 texts={['0', '1']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-blue-300"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
@@ -33,7 +33,7 @@ function Logo({fontSize = 30}) {
             />
             <RotatingText
                 texts={['0', '1']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-blue-300"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
@@ -45,7 +45,7 @@ function Logo({fontSize = 30}) {
             />
             <RotatingText
                 texts={['1', '0']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-blue-300"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
