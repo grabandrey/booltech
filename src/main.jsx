@@ -1,14 +1,16 @@
-import {StrictMode, useState} from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import {BrowserRouter, Route, Routes} from "react-router";
-import LiquidEther from "./Components/LiquidEther.jsx";
-import Navigation from "./Components/Navigation.jsx";
 import Home from "./Pages/Home.jsx";
 import i18next from "i18next";
 import {I18nextProvider} from 'react-i18next';
 import global_en from "./Translations/global_en.json";
 import global_ro from "./Translations/global_ro.json";
+import ColorBends from "./Components/ColorBends.jsx";
+import LiquidEther from "./Components/LiquidEther.jsx";
+import LogoLoop from "./Components/LogoLoop.jsx";
+import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss } from 'react-icons/si';
+import LanguageSelector from "./Components/LanguageSelector.jsx";
 
 i18next.init({
     react: {
@@ -48,6 +50,9 @@ createRoot(document.getElementById('root')).render(
                   autoResumeDelay={1000}
                   autoRampDuration={0.6}
               />
+          </div>
+          <div className="fixed bottom-0 right-0 z-15">
+              <LanguageSelector/>
           </div>
           <Routes>
               <Route index element={<Home />} />

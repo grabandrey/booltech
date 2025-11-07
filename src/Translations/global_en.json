@@ -6,6 +6,12 @@
       "develop" : "develop",
       "deploy" : "deploy",
       "your_dream_website" : "your dream website."
+    },
+    "discover_us": "Let's talk",
+    "navigation": {
+      "projects": "Projects",
+      "about": "About",
+      "lets_talk": "Let's talk"
     }
   }
 }

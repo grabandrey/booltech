@@ -18,15 +18,88 @@
 
 @font-face {
   font-family: Tech;
-  src: url("./assets/fonts/Tech.ttf") format('truetype');
+  src: url("./assets/fonts/Tech.otf") format('opentype');
 }
+
+@font-face {
+  font-family: SpaceGrotesk;
+  src: url("./assets/fonts/SpaceGrotesk.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: CursiveFont;
+  src: url("./assets/fonts/Cursive.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: Amazon;
+  src: url("./assets/fonts/amazon.otf") format('opentype');
+}
+
 
 @theme {
   --font-clash-sourcecode: "SourceCode";
   --font-clash-archivoblack: "ArchivoBlack";
   --font-clash-gerova: "Gerova";
   --font-clash-tech: "Tech";
+  --font-clash-spacegrotesk: "SpaceGrotesk";
+  --font-clash-cursive: "CursiveFont";
+  --font-clash-amazon: "Amazon";
 }
+
+.hide-scrollbar {
+  /* hides scrollbar but keeps scrolling active */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE 10+ */
+  -webkit-overflow-scrolling: touch;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;                  /* Chrome, Safari, Edge */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cross-browser base */
+.custom-scrollbar {
+  scrollbar-width: thin;                              /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.45) transparent;/* Firefox */
+  color-scheme: light;                                /* <-- Safari: prefer a light UI */
+}
+
+/* WebKit (Safari/Chrome/Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: transparent;                      /* track bg */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.45);
+  border-radius: 9999px;
+  border: 2px solid transparent;                      /* creates an inset gap */
+  background-clip: content-box;
+  transition: background-color 150ms ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255,255,255,0.7);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* iOS-specific polish (optional) */
+@supports (-webkit-touch-callout: none) {
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 
 :root {
   background-color: #101010;

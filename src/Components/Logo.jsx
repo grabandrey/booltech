@@ -21,7 +21,7 @@ function Logo({fontSize = 55}) {
             <div className="font-clash-sourcecode font-semibold">b</div>
             <RotatingText
                 texts={['0', '1']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#a6a6a6]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
@@ -33,7 +33,7 @@ function Logo({fontSize = 55}) {
             />
             <RotatingText
                 texts={['0', '1']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#a6a6a6]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
@@ -45,7 +45,7 @@ function Logo({fontSize = 55}) {
             />
             <RotatingText
                 texts={['1', '0']}
-                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#78A8D5]"
+                mainClassName="overflow-hidden justify-center font-clash-sourcecode font-normal text-[#a6a6a6]"
                 staggerFrom={"last"}
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
