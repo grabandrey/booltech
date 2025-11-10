@@ -1,16 +1,19 @@
-# React + Vite
+# ⚡ Booltech - Business Website (WIP)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Booltech** is a sleek, performance-driven business website built with **React**, styled with **Tailwind CSS**, and powered by **Vite** for lightning-fast builds and instant hot reloads.  
+It showcases Booltech’s digital services ,web development, SEO, maintenance, and redesign with a focus on clean design, scalability, and smooth user experience.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tech Stack
 
-## React Compiler
+- ⚛️ **React** - Component-based UI for dynamic and modular front-end development.
+- 🎨 **Tailwind CSS** - Utility-first styling for rapid design iteration.
+- ⚡ **Vite** - Next-gen build tool for ultra-fast dev server and optimized production builds.
+- 🧠 **ESLint + Prettier** - Code linting and formatting for consistent style.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+Built with ❤️ by Andrei Grab
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+https://booltech.ro
+
