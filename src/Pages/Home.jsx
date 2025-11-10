@@ -1,13 +1,16 @@
 import RotatingText from "../Components/RotatingText.jsx";
 import {motion, useMotionValueEvent, useScroll, useSpring, useTransform} from "framer-motion";
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import GradientText from "../Components/GradientText.jsx";
 import SplitText from "../Components/SplitText.jsx";
 import Navigation from "../Components/Navigation.jsx";
 import {MouseParallax} from "react-just-parallax";
 import TextType from "../Components/TextType.jsx";
+import {LanguageContext} from "../Context/LanguageProvider.jsx";
 function Home() {
+
+    const {userLanguage, setUserLanguage} = useContext(LanguageContext);
 
     const [startAnimation, setStartAnimation] = useState(false);
 
@@ -57,6 +60,10 @@ function Home() {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        console.log(scrollYProgress.get('current'));
+    },[userLanguage])
+
     const word1 = [
         <div key="w1" className="pointer-events-none px-1 font-clash-cursive relative xl:top-[-4px] xl:text-[58px] text-[50px] top-[-13px] grid justify-items-center items-center">
             <GradientText
@@ -78,7 +85,7 @@ function Home() {
     ];
 
     return (
-        <motion.div ref={targetRef} className={`[scrollbar-width:none] [color-scheme:light] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden custom-scrollbar grid fixed h-screen w-full ${startAnimation ? "overflow-y-scroll" : null} overscroll-contain items-center justify-items-center z-10`}>
+        <motion.div ref={targetRef}  className={`[scrollbar-width:none] [color-scheme:light] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden custom-scrollbar grid fixed h-screen w-full ${startAnimation ? "overflow-y-scroll" : null} overscroll-contain items-center justify-items-center z-10`}>
             <motion.div className={`fixed top-0 w-full z-10`} style={{opacity:smoothNavOpacity, y: smoothNavPosition, scale: smoothNavScale}}>
                 <Navigation/>
             </motion.div>
@@ -106,7 +113,7 @@ function Home() {
                 {/*    cursorCharacter="█"*/}
                 {/*/>*/}
             </motion.div>
-            <motion.div  className={`pointer-events-none top-0 w-full fixed h-dvh grid text-white xl:text-[60px] text-[40px] z-2 font-normal justify-items-center items-center`}>
+            <motion.div className={`pointer-events-none top-0 w-full fixed h-dvh grid text-white xl:text-[60px] text-[40px] z-2 font-normal justify-items-center items-center`}>
                 <div className="pointer-events-none grid justify-items-center items-center">
                     <motion.div style={{ scale: smoothScale, opacity:smoothOpacity, filter:blurFilter }} className={`grid justify-items-center items-center xl:gap-7 gap-5 xl:p-0 p-10 xl:grid-flow-col`}>
                         <motion.div className="font-clash-sourcecode pointer-events-none"

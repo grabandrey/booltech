@@ -3,8 +3,11 @@ import Logo from "./Logo.jsx";
 import {motion, useScroll, useSpring, useTransform} from "framer-motion";
 import {useNavigate} from "react-router";
 import {useTranslation} from "react-i18next";
+import {useContext} from "react";
+import {LanguageContext} from "../Context/LanguageProvider.jsx";
 function Navigation() {
 
+    const {userLanguage, setUserLanguage} = useContext(LanguageContext);
     let navigate = useNavigate();
     const [t, i18n] = useTranslation("global");
     const { scrollYProgress } = useScroll();
