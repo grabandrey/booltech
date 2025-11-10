@@ -1,12 +1,10 @@
 import RotatingText from "../Components/RotatingText.jsx";
-import {motion, useMotionValueEvent, useScroll, useSpring, useTransform} from "framer-motion";
+import {motion, useScroll, useSpring, useTransform} from "framer-motion";
 import {useContext, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import GradientText from "../Components/GradientText.jsx";
 import SplitText from "../Components/SplitText.jsx";
 import Navigation from "../Components/Navigation.jsx";
-import {MouseParallax} from "react-just-parallax";
-import TextType from "../Components/TextType.jsx";
 import {LanguageContext} from "../Context/LanguageProvider.jsx";
 function Home() {
 
@@ -17,7 +15,7 @@ function Home() {
     const [t, i18n] = useTranslation("global");
     const targetRef = useRef(null);
     const secondSectionRef = useRef(null);
-    const { scrollYProgress /* also scrollY if you want px */ } = useScroll({
+    const { scrollYProgress } = useScroll({
         container: targetRef
     });
 
@@ -56,13 +54,8 @@ function Home() {
             setStartAnimation(true);
         }, 2000);
 
-        // Cleanup — always be a responsible hook citizen
         return () => clearTimeout(timer);
     }, []);
-
-    useEffect(() => {
-        console.log(scrollYProgress.get('current'));
-    },[userLanguage])
 
     const word1 = [
         <div key="w1" className="pointer-events-none px-1 font-clash-cursive relative xl:top-[-4px] xl:text-[58px] text-[50px] top-[-13px] grid justify-items-center items-center">
