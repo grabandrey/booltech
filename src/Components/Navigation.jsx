@@ -28,9 +28,9 @@ function Navigation() {
                         border-[2px] border-gray-400
                         p-1 px-7 rounded-full
                         text-white
-                        shadow-[0_0_15px_rgba(255,255,255,0.8),inset_0_0_10px_rgba(255,255,255,0.5)]
+                        shadow-[0_0_10px_rgba(255,255,255,0.8),inset_0_0_10px_rgba(255,255,255,0.5)]
                         transition-all duration-300
-                        hover:shadow-[0_0_25px_rgba(255,255,255,1),inset_0_0_15px_rgba(255,255,255,0.7)]"
+                        hover:shadow-[0_0_15px_rgba(255,255,255,1),inset_0_0_15px_rgba(255,255,255,0.7)]"
                         >
                             {t("home_page.navigation.lets_talk")}
                         </div>

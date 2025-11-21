@@ -34,14 +34,17 @@ function LanguageSelector() {
                     {setUserLanguage('en')
                     }
                 }}
-                className="bg-[rgba(255,255,255,0.1)] rounded-[10px])] grid-flow-col grid gap-3 p-2 rounded-full backdrop-blur-[50px]">
-                <motion.div animate={{opacity: userLanguage !== 'en' ? 1 : 0.3, scale: userLanguage === 'ro' ? 1 : 0.85}}
-                            className={`bg-cover w-7 h-7 bg-center`}
-                            style={{backgroundImage: `url('${romanian}')`}}/>
-                <motion.div animate={{opacity: userLanguage === 'en' ? 1 : 0.3, scale: userLanguage === 'en' ? 1 : 0.85}}
-                            className={`bg-cover w-7 h-7 bg-center`}
-                            style={{backgroundImage: `url('${english}')`}}
-                            />
+                className="bg-[rgba(255,255,255,0.1)] text-[13px] rounded-[10px])] font-bold grid-flow-col grid gap-3 p-2 rounded-full backdrop-blur-[50px] relative">
+                <motion.div animate={{opacity: userLanguage !== 'en' ? 1 : 0.3, scale: userLanguage === 'ro' ? 1.05 : 1, color: userLanguage === 'ro' ? '#ffffff' : '#cdcdcd'}}
+                            className={`bg-cover w-7 h-7 bg-center text-center justify-items-center items-center grid`}
+                            >RO</motion.div>
+                <motion.div animate={{opacity: userLanguage === 'en' ? 1 : 0.3, scale: userLanguage === 'en' ? 1.05 : 1, color: userLanguage === 'en' ? '#ffffff' : '#cdcdcd'}}
+                            className={`bg-cover w-7 h-7 bg-center text-center justify-items-center items-center grid`}
+                            >EN</motion.div>
+                <motion.div
+                    animate={{ left: userLanguage === 'ro' ? '5%' : '52%'}}
+                    transition={{duration:1, type:'spring', damping: 20}}
+                    className={`absolute h-9 w-9 bg-[rgba(255,255,255,0.1)] rounded-full top-1`}/>
             </motion.div>
         </div>
     );

@@ -151,7 +151,7 @@ function Home() {
             <div ref={secondSectionRef}
                 className="z-2 grid h-dvh w-full text-white font-clash-sourcecode font-normal justify-items-center items-center">
                 <div className="grid justify-items-center items-center gap-7 text-[40px] z-2">
-                    <div>second section asdasdas</div>
+                    <div>second section</div>
                 </div>
             </div>
 
