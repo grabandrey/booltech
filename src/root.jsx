@@ -1,6 +1,5 @@
 import i18next from "i18next";
 import {BrowserRouter, Route, Routes} from "react-router";
-import LiquidEther from "./Components/LiquidEther.jsx";
 import LanguageSelector from "./Components/LanguageSelector.jsx";
 import Home from "./Pages/Home.jsx";
 import {I18nextProvider} from "react-i18next";
@@ -9,11 +8,12 @@ import global_ro from "./Translations/global_ro.json";
 import {LanguageContext} from "./Context/LanguageProvider.jsx";
 import {useContext} from "react";
 import ColorBends from "./Components/ColorBends.jsx";
-import FloatingLines from "./Components/FloatingLines.jsx";
+import useIsMobile from "./Components/useIsMobile.jsx";
 
 function Root() {
 
     const {userLanguage, setUserLanguage} = useContext(LanguageContext);
+    const isMobile = useIsMobile();
 
     i18next.init({
         react: {
@@ -37,7 +37,7 @@ function Root() {
                 <div className="fixed top-0 left-0 w-full h-full z-1 opacity-10">
                     <ColorBends
                         colors={["#ffffff"]}
-                        rotation={60}
+                        rotation={isMobile ? 20 : 60}
                         speed={0.5}
                         scale={1}
                         frequency={1}
@@ -65,9 +65,9 @@ function Root() {
                 {/*        autoRampDuration={0.6}*/}
                 {/*    />*/}
                 </div>
-                <div className="fixed bottom-0 right-0 z-15">
-                    <LanguageSelector/>
-                </div>
+                {/*<div className="fixed bottom-0 right-0 z-15">*/}
+                {/*    <LanguageSelector/>*/}
+                {/*</div>*/}
                 <Routes>
                     <Route index element={<Home />} />
                 </Routes>

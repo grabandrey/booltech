@@ -6,6 +6,7 @@ import GradientText from "../Components/GradientText.jsx";
 import SplitText from "../Components/SplitText.jsx";
 import Navigation from "../Components/Navigation.jsx";
 import {LanguageContext} from "../Context/LanguageProvider.jsx";
+import TextType from "../Components/TextType.jsx";
 function Home() {
 
     const {userLanguage, setUserLanguage} = useContext(LanguageContext);
@@ -79,8 +80,8 @@ function Home() {
 
     return (
         <motion.div ref={targetRef}  className={`[scrollbar-width:none] [color-scheme:light] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden custom-scrollbar grid fixed h-screen w-full ${startAnimation ? "overflow-y-scroll" : null} overscroll-contain items-center justify-items-center z-10`}>
-            <motion.div className={`fixed top-0 w-full z-10`} style={{opacity:smoothNavOpacity, y: smoothNavPosition, scale: smoothNavScale}}>
-                <Navigation/>
+            <motion.div className={`fixed top-0 w-full z-10`} style={{y: smoothNavPosition, scale: smoothNavScale}}>
+                <Navigation scrollProgress={scrollYProgress} />
             </motion.div>
             <motion.div className={`pointer-events-none font-clash-sourcecode fixed inset-0 grid place-items-center text-[17vw] text-white`}
                         style={{opacity:smoothOpacity2}}>
@@ -91,7 +92,7 @@ function Home() {
                     duration={2}
                     ease="power3.out"
                     splitType="chars"
-                    from={{ opacity: 0, y: 40, color: '#ffffff' }}
+                    from={{ opacity: 0, y: 25, color: '#ffffff' }}
                     to={{ opacity: 1, y: 0, color: "#ffffff" }}
                     threshold={0.1}
                     rootMargin="-100px"
@@ -103,7 +104,7 @@ function Home() {
                 {/*    deletingSpeed={150}*/}
                 {/*    loop={true}*/}
                 {/*    showCursor={true}*/}
-                {/*    cursorCharacter="█"*/}
+                {/*    cursorCharacter=""*/}
                 {/*/>*/}
             </motion.div>
             <motion.div className={`pointer-events-none top-0 w-full fixed h-dvh grid text-white xl:text-[60px] text-[40px] z-2 font-normal justify-items-center items-center`}>
