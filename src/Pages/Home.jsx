@@ -1,14 +1,12 @@
 import RotatingText from "../Components/RotatingText.jsx";
 import {motion, useScroll, useSpring, useTransform} from "framer-motion";
-import {useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import GradientText from "../Components/GradientText.jsx";
 import SplitText from "../Components/SplitText.jsx";
 import Navigation from "../Components/Navigation.jsx";
 import {LanguageContext} from "../Context/LanguageProvider.jsx";
-import TextType from "../Components/TextType.jsx";
 function Home() {
-
     const {userLanguage, setUserLanguage} = useContext(LanguageContext);
 
     const [startAnimation, setStartAnimation] = useState(false);
@@ -43,6 +41,8 @@ function Home() {
     const smoothBlur = useSpring(blurAmount, { stiffness: 200, damping: 28, mass: 0.35 });
     // convert numeric px to a CSS filter string that framer-motion can animate
     const blurFilter = useTransform(smoothBlur, (v) => `blur(${v}px)`);
+    const [hearts, setHearts] = useState([]);
+    const buttonRef = useRef(null);
 
     function scrollToSection(sectionRef) {
         sectionRef.current?.scrollIntoView({
@@ -132,15 +132,14 @@ function Home() {
                     </motion.div>
                 </div>
                 <motion.div
+                    ref={buttonRef}
                     onClick={()=>{scrollToSection(secondSectionRef)}}
                     whileHover={{
                         cursor: 'pointer',
-                        backgroundColor: 'rgba(164,204,253,0.15)', // subtle light blue
                         transition: { duration: 0.3 },
                     }}
                     whileTap={{
                         cursor: 'pointer',
-                        backgroundColor: 'rgba(164,204,253,0.15)', // subtle light blue
                         transition: { duration: 0.3 },
                     }}
                     style={{opacity:smoothOpacity3 }} className="pointer-events-auto absolute bottom-[15%] border-[1px] border-[rgba(255,255,255,0.1)] font-clash-sourcecode text-[20px] p-5 pl-20 pr-20 rounded-full">
