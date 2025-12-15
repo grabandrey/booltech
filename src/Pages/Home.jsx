@@ -6,6 +6,7 @@ import GradientText from "../Components/GradientText.jsx";
 import SplitText from "../Components/SplitText.jsx";
 import Navigation from "../Components/Navigation.jsx";
 import {LanguageContext} from "../Context/LanguageProvider.jsx";
+import PixelCard from "../Components/PixelCard.jsx";
 function Home() {
     const {userLanguage, setUserLanguage} = useContext(LanguageContext);
 
@@ -132,18 +133,16 @@ function Home() {
                     </motion.div>
                 </div>
                 <motion.div
-                    ref={buttonRef}
-                    onClick={()=>{scrollToSection(secondSectionRef)}}
-                    whileHover={{
-                        cursor: 'pointer',
-                        transition: { duration: 0.3 },
-                    }}
+
+
                     whileTap={{
                         cursor: 'pointer',
                         transition: { duration: 0.3 },
                     }}
-                    style={{opacity:smoothOpacity3 }} className="pointer-events-auto absolute bottom-[15%] border-[1px] border-[rgba(255,255,255,0.1)] font-clash-sourcecode text-[20px] p-5 pl-20 pr-20 rounded-full">
-                    <div  className="select-none">{t("home_page.discover_us")}</div>
+                     className="pointer-events-auto absolute bottom-[15%] border-[1px] border-[rgba(255,255,255,0.1)] font-clash-sourcecode text-[20px] p-5 pl-20 pr-20 rounded-full">
+                    <PixelCard variant="pink">
+                        <div style={{opacity:smoothOpacity3 }}  ref={buttonRef} onClick={()=>{scrollToSection(secondSectionRef)}}  className="absolute select-none w-full h-full text-center justify-items-center items-center grid">{t("home_page.discover_us")}</div>
+                    </PixelCard>
                 </motion.div>
             </motion.div>
             <div className="h-dvh z-1"/>

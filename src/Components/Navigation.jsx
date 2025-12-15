@@ -28,8 +28,9 @@ function Navigation({scrollProgress}) {
     }, [scrollProgress]);
 
     return (
-        <motion.div className="relative top-0 left-0 w-full z-10 p-5 grid justify-items-center items-center">
-            <div className=" overflow-hidden pl-7 pr-7 border-[1px] border-[rgba(255,255,255,0.1)] max-w-500 w-full h-20 rounded-[20px] text-white bg-[rgba(0,0,0,0.3)] md:grid-cols-6 grid-cols-2 backdrop-blur-[50px] justify-center items-center grid">
+        <motion.div className={`relative top-0 left-0 w-full z-10 p-5 grid justify-items-center items-center`}>
+            <div className={`absolute ${expand ? 'bg-[rgba(0,0,0,0.2)] h-dvh w-full' : null} top-0 z-1`}/>
+            <div className=" z-2 overflow-hidden pl-7 pr-7 border-[1px] border-[rgba(255,255,255,0.1)] max-w-500 w-full h-20 rounded-[20px] text-white bg-[rgba(0,0,0,0.3)] md:grid-cols-6 grid-cols-2 backdrop-blur-[50px] justify-center items-center grid">
                 <motion.div whileHover={{cursor:'pointer'}} onClick={()=>{navigate('/');}} className="w-30 justify-self-start">
                     <Logo fontSize={20}/>
                 </motion.div>
@@ -76,7 +77,7 @@ function Navigation({scrollProgress}) {
                         animate="open"
                         exit="collapsed"
                         variants={{
-                            open: {opacity: 1, height: '50dvh'},
+                            open: {opacity: 1, height: '80dvh'},
                             collapsed: {opacity: 0, height: 0}
                         }}
                         transition={{duration: 0.3, ease: [0.1, 0.62, 0.23, 0.98]}}
