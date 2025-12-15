@@ -133,16 +133,15 @@ function Home() {
                     </motion.div>
                 </div>
                 <motion.div
-
-
-                    whileTap={{
+                    onClick={()=>{scrollToSection(secondSectionRef)}}
+                    style={{opacity:smoothOpacity3 }}  ref={buttonRef}
+                    whileHover={{
                         cursor: 'pointer',
                         transition: { duration: 0.3 },
+                        backgroundColor: 'rgba(255,255,255,0.1)',
                     }}
                      className="pointer-events-auto absolute bottom-[15%] border-[1px] border-[rgba(255,255,255,0.1)] font-clash-sourcecode text-[20px] p-5 pl-20 pr-20 rounded-full">
-                    <PixelCard variant="pink">
-                        <div style={{opacity:smoothOpacity3 }}  ref={buttonRef} onClick={()=>{scrollToSection(secondSectionRef)}}  className="absolute select-none w-full h-full text-center justify-items-center items-center grid">{t("home_page.discover_us")}</div>
-                    </PixelCard>
+                    {t("home_page.discover_us")}
                 </motion.div>
             </motion.div>
             <div className="h-dvh z-1"/>
