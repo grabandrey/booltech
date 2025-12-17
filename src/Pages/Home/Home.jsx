@@ -1,12 +1,14 @@
-import RotatingText from "../Components/RotatingText.jsx";
-import {motion, useScroll, useSpring, useTransform} from "framer-motion";
+import RotatingText from "../../Components/RotatingText.jsx";
+import {motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform} from "framer-motion";
 import {useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
-import GradientText from "../Components/GradientText.jsx";
-import SplitText from "../Components/SplitText.jsx";
-import Navigation from "../Components/Navigation.jsx";
-import {LanguageContext} from "../Context/LanguageProvider.jsx";
-import PixelCard from "../Components/PixelCard.jsx";
+import GradientText from "../../Components/GradientText.jsx";
+import SplitText from "../../Components/SplitText.jsx";
+import Navigation from "../../Components/Navigation.jsx";
+import {LanguageContext} from "../../Context/LanguageProvider.jsx";
+import SecondSection from "./Components/SecondSection.jsx";
+import ThirdSection from "./Components/ThirdSection.jsx";
+import LanguageSelector from "../../Components/LanguageSelector.jsx";
 function Home() {
     const {userLanguage, setUserLanguage} = useContext(LanguageContext);
 
@@ -15,19 +17,20 @@ function Home() {
     const [t, i18n] = useTranslation("global");
     const targetRef = useRef(null);
     const secondSectionRef = useRef(null);
-    const { scrollYProgress } = useScroll({
+    const thirdSectionRef = useRef(null);
+    const { scrollYProgress : containerScrollProgress } = useScroll({
         container: targetRef
     });
 
-    const scale = useTransform(scrollYProgress, [0, 0.2], [1, 50]);
+    const scale = useTransform(containerScrollProgress, [0, 0.2], [1, 50]);
     const smoothScale = useSpring(scale, { stiffness: 200, damping: 28, mass: 0.35 });
 
-    const opacity = useTransform(scrollYProgress, [0, 0.03], [!startAnimation ? 0 : 1, 0]);
-    const opacity2 = useTransform(scrollYProgress, [0, 0.01], [!startAnimation ? 1 : 0.05, 0]);
-    const opacity3 = useTransform(scrollYProgress, [0, 0.001], [!startAnimation ? 0 : 1, 0]);
-    const navopacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
-    const navPosition = useTransform(scrollYProgress, [0, 0.2], [-100, 0]);
-    const navScale = useTransform(scrollYProgress, [0, 0.2], [0.9, 1]);
+    const opacity = useTransform(containerScrollProgress, [0, 0.03], [!startAnimation ? 0 : 1, 0]);
+    const opacity2 = useTransform(containerScrollProgress, [0, 0.01], [!startAnimation ? 1 : 0.05, 0]);
+    const opacity3 = useTransform(containerScrollProgress, [0, 0.001], [!startAnimation ? 0 : 1, 0]);
+    const navopacity = useTransform(containerScrollProgress, [0, 0.3], [0, 1]);
+    const navPosition = useTransform(containerScrollProgress, [0, 0.2], [-100, 0]);
+    const navScale = useTransform(containerScrollProgress, [0, 0.2], [0.9, 1]);
 
     const smoothOpacity = useSpring(opacity, { stiffness: 200, damping: 28, mass: 0.35 });
     const smoothOpacity2 = useSpring(opacity2, { stiffness: 200, damping: 28, mass: 0.35 });
@@ -38,7 +41,7 @@ function Home() {
     const smoothNavScale = useSpring(navScale, { stiffness: 200, damping: 28, mass: 0.35 });
 
 
-    const blurAmount = useTransform(scrollYProgress, [0, 0.02], [startAnimation ? 0 : 5, 5]);
+    const blurAmount = useTransform(containerScrollProgress, [0, 0.02], [startAnimation ? 0 : 5, 5]);
     const smoothBlur = useSpring(blurAmount, { stiffness: 200, damping: 28, mass: 0.35 });
     // convert numeric px to a CSS filter string that framer-motion can animate
     const blurFilter = useTransform(smoothBlur, (v) => `blur(${v}px)`);
@@ -82,7 +85,7 @@ function Home() {
     return (
         <motion.div ref={targetRef}  className={`[scrollbar-width:none] [color-scheme:light] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden custom-scrollbar grid fixed h-screen w-full ${startAnimation ? "overflow-y-scroll" : null} overscroll-contain items-center justify-items-center z-10`}>
             <motion.div className={`fixed top-0 w-full z-10`} style={{y: smoothNavPosition, scale: smoothNavScale}}>
-                <Navigation scrollProgress={scrollYProgress} />
+                <Navigation scrollProgress={containerScrollProgress} />
             </motion.div>
             <motion.div className={`pointer-events-none font-clash-sourcecode fixed inset-0 grid place-items-center text-[17vw] text-white`}
                         style={{opacity:smoothOpacity2}}>
@@ -99,14 +102,6 @@ function Home() {
                     rootMargin="-100px"
                     textAlign="center"
                 />
-                {/*<TextType*/}
-                {/*    text={'b001tech'}*/}
-                {/*    typingSpeed={150}*/}
-                {/*    deletingSpeed={150}*/}
-                {/*    loop={true}*/}
-                {/*    showCursor={true}*/}
-                {/*    cursorCharacter=""*/}
-                {/*/>*/}
             </motion.div>
             <motion.div className={`pointer-events-none top-0 w-full fixed h-dvh grid text-white xl:text-[60px] text-[40px] z-2 font-normal justify-items-center items-center`}>
                 <div className="pointer-events-none grid justify-items-center items-center">
@@ -146,19 +141,15 @@ function Home() {
             </motion.div>
             <div className="h-dvh z-1"/>
 
-            <div ref={secondSectionRef}
-                className="z-2 grid h-dvh w-full text-white font-clash-sourcecode font-normal justify-items-center items-center">
-                <div className="grid justify-items-center items-center gap-7 text-[40px] z-2">
-                    <div>second section</div>
-                </div>
-            </div>
+            <div ref={secondSectionRef}/>
+            <SecondSection
+                containerRef={targetRef}
+            />
 
-            <div
-                className="z-2  grid h-dvh w-full text-white font-clash-sourcecode font-normal justify-items-center items-center">
-                <div className="grid justify-items-center items-center gap-7 text-[40px]">
-                    <div>third section</div>
-                </div>
-            </div>
+            <ThirdSection
+                containerRef={targetRef}
+                actualSectionRef={thirdSectionRef}
+            />
         </motion.div>
     );
 }

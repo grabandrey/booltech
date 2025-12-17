@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import {BrowserRouter, Route, Routes} from "react-router";
 import LanguageSelector from "./Components/LanguageSelector.jsx";
-import Home from "./Pages/Home.jsx";
+import Home from "./Pages/Home/Home.jsx";
 import {I18nextProvider} from "react-i18next";
 import global_en from "./Translations/global_en.json";
 import global_ro from "./Translations/global_ro.json";
